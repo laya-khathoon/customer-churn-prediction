@@ -694,11 +694,18 @@ st.html(
         display: grid;
 
         grid-template-columns:
-            repeat(3, 1fr);
+            repeat(3, minmax(0, 1fr));
 
         gap: 15px;
 
         margin-top: 22px;
+    }
+
+
+    @media (max-width: 600px) {
+        .stats-row {
+            grid-template-columns: 1fr;
+        }
     }
 
 
