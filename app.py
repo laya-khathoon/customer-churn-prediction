@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import joblib
 import textwrap
+import os
+import subprocess
+import sys
 
 
 # ============================================================
@@ -20,7 +23,27 @@ st.set_page_config(
 # LOAD MODEL
 # ============================================================
 
-model_data = joblib.load("models/churn_model.pkl")
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(APP_DIR, "models", "churn_model.pkl")
+
+
+@st.cache_resource(show_spinner="Preparing the model...")
+def load_model_data():
+    # If the saved model is missing or was built with a different
+    # library version, retrain it once with src/train.py.
+    try:
+        return joblib.load(MODEL_PATH)
+    except Exception:
+        subprocess.run(
+            [sys.executable, os.path.join("src", "train.py")],
+            cwd=APP_DIR,
+            check=True,
+            capture_output=True,
+        )
+        return joblib.load(MODEL_PATH)
+
+
+model_data = load_model_data()
 
 preprocessor = model_data["preprocessor"]
 model = model_data["model"]
