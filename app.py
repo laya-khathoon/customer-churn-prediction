@@ -445,6 +445,12 @@ st.html(
        INPUTS
     ====================================================== */
 
+    [data-testid="stWidgetLabel"] p,
+    [data-testid="stWidgetLabel"] label {
+        color: #cbd5e1 !important;
+    }
+
+
     div[data-baseweb="select"] > div {
         background:
             rgba(15, 23, 42, 0.9) !important;
@@ -793,7 +799,7 @@ st.html("""
         </div>
 
         <div class="badge">
-            ◉ 84.23% ROC-AUC
+            ◉ 84.25% ROC-AUC
         </div>
 
         <div class="badge">
