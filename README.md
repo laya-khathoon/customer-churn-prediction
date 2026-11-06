@@ -74,24 +74,24 @@ Streamlit Application
 
 Model: XGBoost inside a scikit-learn preprocessing pipeline. Data split: 64% train, 16% validation, 20% test (stratified, `random_state=42`). The decision threshold is picked on the validation set (best F1 among 0.3 to 0.7) and comes out at 0.4.
 
-Test set results (1,409 customers), reproduced by running `python src/train.py`:
+Test set results (1,409 customers) for the saved model in `models/churn_model.pkl`, which the app uses:
 
 | Metric | Score |
 | --- | --- |
 | Accuracy | 0.7814 |
-| Precision (churn) | 0.5793 |
-| Recall (churn) | 0.6444 |
-| F1 (churn) | 0.6101 |
-| ROC-AUC | 0.8423 |
+| Precision (churn) | 0.5797 |
+| Recall (churn) | 0.6417 |
+| F1 (churn) | 0.6091 |
+| ROC-AUC | 0.8425 |
 
 Confusion matrix (rows are actual, columns are predicted, order No Churn / Churn):
 
 ```text
-[[860 175]
- [133 241]]
+[[861 174]
+ [134 240]]
 ```
 
-Exact numbers can move slightly with different library versions.
+Re-running `python src/train.py` with current library versions gives almost the same numbers (accuracy 0.7814, F1 0.6101, ROC-AUC 0.8423), so small differences between versions are expected.
 
 ## Setup and Run
 
