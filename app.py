@@ -793,7 +793,7 @@ st.html("""
         </div>
 
         <div class="badge">
-            ◉ 84.25% ROC-AUC
+            ◉ 84.23% ROC-AUC
         </div>
 
         <div class="badge">
