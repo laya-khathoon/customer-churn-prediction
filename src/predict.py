@@ -1,25 +1,53 @@
-import pandas as pd
+"""Predict churn for one customer with the saved model.
+
+Run as a script from the repo root:
+
+    python src/predict.py
+
+The loading and prediction steps are functions so they can be
+imported and tested offline; running the file directly behaves
+exactly as before.
+"""
+
 import joblib
+import pandas as pd
 
 
 # ==========================================
 # 1. Load saved model
 # ==========================================
 
-model_data = joblib.load(
-    "models/churn_model.pkl"
-)
-
-preprocessor = model_data["preprocessor"]
-model = model_data["model"]
-threshold = model_data["threshold"]
+def load_model(path="models/churn_model.pkl"):
+    """Load the pickle with preprocessor, model and threshold."""
+    return joblib.load(path)
 
 
 # ==========================================
-# 2. Create sample customer
+# 2. Predict churn probability for one customer
 # ==========================================
 
-customer = pd.DataFrame([
+def predict_customer(customer, model_data):
+    """Return (churn_probability, prediction) for a one-row DataFrame."""
+    customer_processed = model_data["preprocessor"].transform(
+        customer
+    )
+
+    churn_probability = model_data["model"].predict_proba(
+        customer_processed
+    )[:, 1][0]
+
+    prediction = (
+        churn_probability >= model_data["threshold"]
+    )
+
+    return churn_probability, bool(prediction)
+
+
+# ==========================================
+# Sample customer used by the script
+# ==========================================
+
+SAMPLE_CUSTOMER = pd.DataFrame([
     {
         "gender": "Male",
         "SeniorCitizen": 0,
@@ -45,51 +73,36 @@ customer = pd.DataFrame([
 
 
 # ==========================================
-# 3. Preprocess customer data
+# Script entry point (same output as before)
 # ==========================================
 
-customer_processed = preprocessor.transform(
-    customer
-)
+def main():
+    model_data = load_model()
+    threshold = model_data["threshold"]
+
+    churn_probability, prediction = predict_customer(
+        SAMPLE_CUSTOMER,
+        model_data
+    )
+
+    print("\nCustomer Churn Prediction")
+    print("-------------------------")
+
+    print(
+        f"Churn Probability: "
+        f"{churn_probability:.2%}"
+    )
+
+    print(
+        f"Classification Threshold: "
+        f"{threshold:.2f}"
+    )
+
+    if prediction:
+        print("Prediction: Customer is likely to churn.")
+    else:
+        print("Prediction: Customer is likely to stay.")
 
 
-# ==========================================
-# 4. Predict churn probability
-# ==========================================
-
-churn_probability = model.predict_proba(
-    customer_processed
-)[:, 1][0]
-
-
-# ==========================================
-# 5. Make prediction
-# ==========================================
-
-prediction = (
-    churn_probability >= threshold
-)
-
-
-# ==========================================
-# 6. Display result
-# ==========================================
-
-print("\nCustomer Churn Prediction")
-print("-------------------------")
-
-print(
-    f"Churn Probability: "
-    f"{churn_probability:.2%}"
-)
-
-print(
-    f"Classification Threshold: "
-    f"{threshold:.2f}"
-)
-
-
-if prediction:
-    print("Prediction: Customer is likely to churn.")
-else:
-    print("Prediction: Customer is likely to stay.")
+if __name__ == "__main__":
+    main()
