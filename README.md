@@ -123,12 +123,19 @@ streamlit run app.py
 
 If `models/churn_model.pkl` is missing or was saved with a different library version, the app retrains it once on startup.
 
+Run the test suite (offline, uses the bundled CSV and saved model):
+
+```bash
+python -m pytest tests/
+```
+
 ## Project Structure
 
 ```text
 app.py              Streamlit app
-src/train.py        Training and evaluation
-src/predict.py      Sample prediction script
+src/train.py        Training and evaluation pipeline (importable functions)
+src/predict.py      Sample prediction script (importable functions)
+tests/              Offline pytest suite for training and prediction
 data/               Telco customer churn CSV
 models/             Saved model and preprocessing pipeline
 notebooks/          Data exploration
