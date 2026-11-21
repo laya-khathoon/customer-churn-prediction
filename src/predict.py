@@ -23,11 +23,60 @@ def load_model(path="models/churn_model.pkl"):
 
 
 # ==========================================
-# 2. Predict churn probability for one customer
+# 2. Validate the input row
+# ==========================================
+
+# Every field the preprocessor was trained on (the Telco dataset columns
+# after dropping customerID and the Churn target).
+REQUIRED_COLUMNS = [
+    "gender",
+    "SeniorCitizen",
+    "Partner",
+    "Dependents",
+    "tenure",
+    "PhoneService",
+    "MultipleLines",
+    "InternetService",
+    "OnlineSecurity",
+    "OnlineBackup",
+    "DeviceProtection",
+    "TechSupport",
+    "StreamingTV",
+    "StreamingMovies",
+    "Contract",
+    "PaperlessBilling",
+    "PaymentMethod",
+    "MonthlyCharges",
+    "TotalCharges",
+]
+
+
+def validate_customer(customer):
+    """Raise a clear error when a required customer field is missing.
+
+    The preprocessor fails with a long traceback on missing columns; naming
+    the missing fields makes the real problem obvious. Extra columns are
+    ignored by the preprocessor, so they are allowed.
+    """
+    missing = [column for column in REQUIRED_COLUMNS if column not in customer.columns]
+    if missing:
+        raise ValueError(
+            "Missing customer fields: " + ", ".join(missing)
+        )
+    if len(customer) != 1:
+        raise ValueError(
+            f"predict_customer expects exactly one customer row, got {len(customer)}."
+        )
+
+
+# ==========================================
+# 3. Predict churn probability for one customer
 # ==========================================
 
 def predict_customer(customer, model_data):
     """Return (churn_probability, prediction) for a one-row DataFrame."""
+    validate_customer(customer)
+
     customer_processed = model_data["preprocessor"].transform(
         customer
     )
