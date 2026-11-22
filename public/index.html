@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChurnIQ | Customer Churn Prediction</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(37,99,235,0.18), transparent 28%),
+    radial-gradient(circle at 90% 20%, rgba(6,182,212,0.14), transparent 30%),
+    radial-gradient(circle at 50% 100%, rgba(124,58,237,0.12), transparent 35%),
+    #050914;
+  color: #f8fafc;
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+}
+
+.orb { position: fixed; border-radius: 50%; filter: blur(90px); opacity: 0.18; pointer-events: none; z-index: 0; }
+.orb-one { width: 320px; height: 320px; background: #2563eb; left: -120px; top: 5%; animation: floatOne 12s ease-in-out infinite; }
+.orb-two { width: 280px; height: 280px; background: #06b6d4; right: -100px; top: 35%; animation: floatTwo 15s ease-in-out infinite; }
+.orb-three { width: 240px; height: 240px; background: #7c3aed; left: 40%; bottom: 0; animation: floatThree 18s ease-in-out infinite; }
+@keyframes floatOne { 0%,100%{transform:translate(0,0);} 50%{transform:translate(90px,70px);} }
+@keyframes floatTwo { 0%,100%{transform:translate(0,0);} 50%{transform:translate(-90px,60px);} }
+@keyframes floatThree { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-90px);} }
+
+.container { max-width: 1180px; margin: 0 auto; padding: 2rem 1.25rem 4rem; position: relative; z-index: 2; }
+
+.hero { padding: 45px 0 30px; animation: heroEnter 0.9s ease-out; }
+@keyframes heroEnter { from{opacity:0;transform:translateY(-30px);} to{opacity:1;transform:translateY(0);} }
+
+.eyebrow { display: flex; align-items: center; gap: 9px; color: #60a5fa; font-size: 12px; font-weight: 800; letter-spacing: 2px; margin-bottom: 16px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: pulse 2s infinite; }
+@keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(34,197,94,0.6);} 70%{box-shadow:0 0 0 10px rgba(34,197,94,0);} 100%{box-shadow:0 0 0 0 rgba(34,197,94,0);} }
+
+.hero-title { margin: 0; font-size: clamp(42px, 6vw, 72px); line-height: 1.03; font-weight: 800; letter-spacing: -3px; color: #f8fafc; }
+.gradient-text {
+  background: linear-gradient(90deg, #60a5fa, #22d3ee, #818cf8, #60a5fa);
+  background-size: 300% auto;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientFlow 5s linear infinite;
+}
+@keyframes gradientFlow { 0%{background-position:0% center;} 100%{background-position:300% center;} }
+
+.hero-description { max-width: 750px; margin-top: 20px; color: #94a3b8; font-size: 16px; line-height: 1.7; }
+
+.badge-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 25px; }
+.badge { padding: 9px 15px; border-radius: 30px; background: rgba(15,23,42,0.7); border: 1px solid rgba(148,163,184,0.16); color: #cbd5e1; font-size: 12px; backdrop-filter: blur(15px); transition: all 0.3s ease; }
+.badge:hover { transform: translateY(-3px); border-color: rgba(96,165,250,0.5); box-shadow: 0 8px 25px rgba(37,99,235,0.15); }
+
+.section { margin-top: 35px; }
+.section-header { display: flex; align-items: center; gap: 13px; margin-bottom: 16px; }
+.section-icon { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 13px; background: linear-gradient(135deg, rgba(37,99,235,0.25), rgba(6,182,212,0.12)); border: 1px solid rgba(96,165,250,0.2); color: #60a5fa; font-size: 18px; }
+.section-title { font-size: 21px; font-weight: 700; color: #f8fafc; }
+.section-description { color: #64748b; font-size: 13px; margin-top: 3px; }
+
+.glass-card { padding: 26px; border-radius: 20px; background: linear-gradient(145deg, rgba(15,23,42,0.82), rgba(15,23,42,0.58)); border: 1px solid rgba(148,163,184,0.13); backdrop-filter: blur(20px); box-shadow: 0 20px 60px rgba(0,0,0,0.25); transition: all 0.3s ease; }
+.glass-card:hover { transform: translateY(-3px); border-color: rgba(96,165,250,0.24); box-shadow: 0 25px 70px rgba(0,0,0,0.32); }
+
+.fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.fields.two { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 860px) { .fields, .fields.two { grid-template-columns: 1fr; } }
+
+.field label { display: block; color: #cbd5e1; font-size: 13px; font-weight: 500; margin-bottom: 7px; }
+.field select, .field input {
+  width: 100%; padding: 11px 13px; border-radius: 11px;
+  background: rgba(15,23,42,0.9); border: 1px solid rgba(148,163,184,0.18);
+  color: #f8fafc; font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
+}
+.field select:focus, .field input:focus { border-color: rgba(96,165,250,0.5); }
+
+.predict-btn {
+  width: 100%; height: 60px; margin-top: 22px; border: none; border-radius: 15px;
+  background: linear-gradient(90deg, #2563eb, #0891b2, #2563eb); background-size: 200% auto;
+  color: white; font-size: 15px; font-weight: 800; letter-spacing: 0.5px; cursor: pointer;
+  box-shadow: 0 10px 35px rgba(37,99,235,0.3); animation: buttonFlow 4s linear infinite;
+  font-family: 'Inter', sans-serif; transition: all 0.2s ease;
+}
+@keyframes buttonFlow { 0%{background-position:0% center;} 100%{background-position:200% center;} }
+.predict-btn:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 15px 45px rgba(37,99,235,0.45); }
+.predict-btn:disabled { opacity: 0.6; cursor: wait; transform: none; }
+
+.result-card { margin-top: 35px; padding: 40px; text-align: center; border-radius: 25px; background: linear-gradient(145deg, rgba(30,64,175,0.22), rgba(15,23,42,0.78)); border: 1px solid rgba(96,165,250,0.25); box-shadow: 0 30px 80px rgba(0,0,0,0.35); animation: resultEnter 0.8s ease-out; }
+@keyframes resultEnter { from{opacity:0;transform:translateY(35px) scale(0.95);} to{opacity:1;transform:translateY(0) scale(1);} }
+
+.result-label { color: #64748b; font-size: 11px; font-weight: 800; letter-spacing: 2px; }
+.probability { font-size: clamp(52px, 8vw, 84px); font-weight: 800; margin: 12px 0 4px; background: linear-gradient(90deg, #60a5fa, #22d3ee); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.risk-text { font-size: 14px; font-weight: 700; letter-spacing: 1.5px; margin-bottom: 20px; }
+.risk-text.high { color: #f87171; } .risk-text.medium { color: #fbbf24; } .risk-text.low { color: #34d399; }
+.risk-bar { height: 10px; border-radius: 8px; background: rgba(148,163,184,0.15); overflow: hidden; max-width: 480px; margin: 0 auto; }
+.risk-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, #2563eb, #22d3ee); transition: width 0.8s ease-out; }
+.threshold { margin-top: 18px; color: #64748b; font-size: 13px; }
+.threshold strong { color: #cbd5e1; }
+
+.verdict { margin-top: 22px; padding: 15px 18px; border-radius: 13px; font-size: 14px; font-weight: 600; }
+.verdict.churn { background: rgba(127,29,29,0.35); border: 1px solid rgba(248,113,113,0.35); color: #fca5a5; }
+.verdict.stay { background: rgba(6,78,59,0.35); border: 1px solid rgba(52,211,153,0.35); color: #6ee7b7; }
+
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 22px; }
+@media (max-width: 640px) { .stats-row { grid-template-columns: 1fr; } }
+.stat { padding: 22px; border-radius: 16px; background: rgba(15,23,42,0.7); border: 1px solid rgba(148,163,184,0.13); text-align: center; }
+.stat-value { font-size: 24px; font-weight: 800; color: #f8fafc; }
+.stat-label { margin-top: 6px; color: #64748b; font-size: 12px; }
+
+.error-box { margin-top: 22px; padding: 15px 18px; border-radius: 13px; background: rgba(127,29,29,0.35); border: 1px solid rgba(248,113,113,0.35); color: #fca5a5; font-size: 14px; }
+
+.footer { margin-top: 60px; text-align: center; color: #475569; font-size: 13px; line-height: 1.8; }
+.footer strong { color: #94a3b8; letter-spacing: 2px; }
+
+.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="orb orb-one"></div>
+<div class="orb orb-two"></div>
+<div class="orb orb-three"></div>
+
+<div class="container">
+
+  <div class="hero">
+    <div class="eyebrow"><div class="status-dot"></div>AI-POWERED CHURN INTELLIGENCE</div>
+    <h1 class="hero-title">Predict customer churn<br>with <span class="gradient-text">ChurnIQ</span></h1>
+    <p class="hero-description">Enter a customer's profile, services and billing details. The trained XGBoost model estimates how likely they are to leave, so retention teams know where to act first.</p>
+    <div class="badge-row">
+      <div class="badge">XGBoost Classifier</div>
+      <div class="badge">200 Decision Trees</div>
+      <div class="badge">Telco Customer Dataset</div>
+      <div class="badge">Instant Prediction</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">◉</div>
+      <div><div class="section-title">Customer Profile</div><div class="section-description">Basic customer information</div></div>
+    </div>
+    <div class="glass-card">
+      <div class="fields">
+        <div class="field"><label>Gender</label><select id="gender"><option>Male</option><option>Female</option></select></div>
+        <div class="field"><label>Senior Citizen</label><select id="SeniorCitizen"><option value="0">No</option><option value="1">Yes</option></select></div>
+        <div class="field"><label>Partner</label><select id="Partner"><option>Yes</option><option>No</option></select></div>
+        <div class="field"><label>Dependents</label><select id="Dependents"><option>Yes</option><option>No</option></select></div>
+        <div class="field"><label>Tenure (months)</label><input id="tenure" type="number" min="0" max="100" value="12"></div>
+        <div class="field"><label>Phone Service</label><select id="PhoneService"><option>Yes</option><option>No</option></select></div>
+        <div class="field"><label>Multiple Lines</label><select id="MultipleLines"><option>Yes</option><option>No</option><option>No phone service</option></select></div>
+        <div class="field"><label>Contract</label><select id="Contract"><option>Month-to-month</option><option>One year</option><option>Two year</option></select></div>
+        <div class="field"><label>Paperless Billing</label><select id="PaperlessBilling"><option>Yes</option><option>No</option></select></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">◇</div>
+      <div><div class="section-title">Service Usage</div><div class="section-description">Customer subscriptions and service features</div></div>
+    </div>
+    <div class="glass-card">
+      <div class="fields">
+        <div class="field"><label>Internet Service</label><select id="InternetService"><option>DSL</option><option>Fiber optic</option><option>No</option></select></div>
+        <div class="field"><label>Online Security</label><select id="OnlineSecurity"><option>Yes</option><option>No</option><option>No internet service</option></select></div>
+        <div class="field"><label>Online Backup</label><select id="OnlineBackup"><option>Yes</option><option>No</option><option>No internet service</option></select></div>
+        <div class="field"><label>Device Protection</label><select id="DeviceProtection"><option>Yes</option><option>No</option><option>No internet service</option></select></div>
+        <div class="field"><label>Tech Support</label><select id="TechSupport"><option>Yes</option><option>No</option><option>No internet service</option></select></div>
+        <div class="field"><label>Streaming TV</label><select id="StreamingTV"><option>Yes</option><option>No</option><option>No internet service</option></select></div>
+        <div class="field"><label>Streaming Movies</label><select id="StreamingMovies"><option>Yes</option><option>No</option><option>No internet service</option></select></div>
+        <div class="field"><label>Payment Method</label><select id="PaymentMethod"><option>Electronic check</option><option>Mailed check</option><option>Bank transfer (automatic)</option><option>Credit card (automatic)</option></select></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">$</div>
+      <div><div class="section-title">Billing Information</div><div class="section-description">Customer payment and billing information</div></div>
+    </div>
+    <div class="glass-card">
+      <div class="fields two">
+        <div class="field"><label>Monthly Charges</label><input id="MonthlyCharges" type="number" min="0" step="0.05" value="70"></div>
+        <div class="field"><label>Total Charges</label><input id="TotalCharges" type="number" min="0" step="0.05" value="840"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="predict-btn" id="predictBtn" onclick="analyze()">◈ &nbsp;ANALYZE CUSTOMER CHURN</button>
+
+  <div id="errorBox" class="error-box hidden"></div>
+
+  <div id="result" class="hidden">
+    <div class="result-card">
+      <div class="result-label">AI PREDICTION RESULT</div>
+      <div class="probability" id="probability">0%</div>
+      <div class="risk-text" id="riskText"></div>
+      <div class="risk-bar"><div class="risk-fill" id="riskFill" style="width:0%"></div></div>
+      <div class="threshold">Classification threshold: <strong id="thresholdValue"></strong></div>
+      <div class="verdict" id="verdict"></div>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-value" id="statProb"></div><div class="stat-label">Churn Probability</div></div>
+      <div class="stat"><div class="stat-value" id="statThreshold"></div><div class="stat-label">Decision Threshold</div></div>
+      <div class="stat"><div class="stat-value">XGBoost</div><div class="stat-label">Prediction Model</div></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <strong>CHURNIQ</strong> &nbsp; • &nbsp; AI-Powered Customer Churn Prediction
+    <br><br>
+    Built with Python • XGBoost • Scikit-learn
+  </div>
+
+</div>
+
+<script>
+const FIELDS = ["gender","SeniorCitizen","Partner","Dependents","tenure","PhoneService","MultipleLines","InternetService","OnlineSecurity","OnlineBackup","DeviceProtection","TechSupport","StreamingTV","StreamingMovies","Contract","PaperlessBilling","PaymentMethod","MonthlyCharges","TotalCharges"];
+const NUMERIC = new Set(["SeniorCitizen","tenure","MonthlyCharges","TotalCharges"]);
+
+async function analyze() {
+  const btn = document.getElementById("predictBtn");
+  const errorBox = document.getElementById("errorBox");
+  const result = document.getElementById("result");
+  errorBox.classList.add("hidden");
+  result.classList.add("hidden");
+
+  const customer = {};
+  for (const id of FIELDS) {
+    const el = document.getElementById(id);
+    const raw = el.value;
+    if (raw === "") { errorBox.textContent = "Please fill in every field before analyzing."; errorBox.classList.remove("hidden"); return; }
+    customer[id] = NUMERIC.has(id) ? Number(raw) : raw;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "◌  ANALYZING...";
+  try {
+    const response = await fetch("/api", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({action: "predict", customer: customer})
+    });
+    const data = await response.json();
+    if (!response.ok) { errorBox.textContent = data.error || "Prediction failed. Try again."; errorBox.classList.remove("hidden"); return; }
+
+    document.getElementById("probability").textContent = data.percentage.toFixed(2) + "%";
+    const riskText = document.getElementById("riskText");
+    riskText.textContent = "● " + data.risk;
+    riskText.className = "risk-text " + (data.risk === "HIGH RISK" ? "high" : data.risk === "MEDIUM RISK" ? "medium" : "low");
+    document.getElementById("thresholdValue").textContent = data.threshold.toFixed(2);
+    const verdict = document.getElementById("verdict");
+    verdict.textContent = (data.prediction ? "⚠ " : "✓ ") + data.verdict;
+    verdict.className = "verdict " + (data.prediction ? "churn" : "stay");
+    document.getElementById("statProb").textContent = data.percentage.toFixed(1) + "%";
+    document.getElementById("statThreshold").textContent = data.threshold.toFixed(2);
+
+    result.classList.remove("hidden");
+    requestAnimationFrame(() => { document.getElementById("riskFill").style.width = data.percentage + "%"; });
+    result.scrollIntoView({behavior: "smooth", block: "nearest"});
+  } catch (error) {
+    errorBox.textContent = "Could not reach the prediction service. Try again in a moment.";
+    errorBox.classList.remove("hidden");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = "◈ &nbsp;ANALYZE CUSTOMER CHURN";
+  }
+}
+</script>
+</body>
+</html>
