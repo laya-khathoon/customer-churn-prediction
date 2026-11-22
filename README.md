@@ -72,6 +72,8 @@ Streamlit Application
 
 ## Results
 
+See [MODEL_CARD.md](MODEL_CARD.md) for the intended use, data split, metrics and limitations in one place.
+
 Model: XGBoost inside a scikit-learn preprocessing pipeline. Data split: 64% train, 16% validation, 20% test (stratified, `random_state=42`). The decision threshold is picked on the validation set (best F1 among 0.3 to 0.7) and comes out at 0.4.
 
 Test set results (1,409 customers) for the saved model in `models/churn_model.pkl`, which the app uses:
