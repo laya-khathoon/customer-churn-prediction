@@ -19,6 +19,8 @@ WEB_MODEL = load_web_model()
 
 
 def run_action(data):
+    if not isinstance(data, dict):
+        raise ValueError("Send a JSON object.")
     action = data.get("action", "predict")
     if action == "health":
         return {
@@ -73,7 +75,7 @@ class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             length = int(self.headers.get("Content-Length") or 0)
-            if length > 65536:
+            if length <= 0 or length > 65536:
                 self._reply(413, {"error": "Request too large."})
                 return
             data = json.loads(self.rfile.read(length) or b"{}")
